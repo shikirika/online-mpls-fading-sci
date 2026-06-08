@@ -1,0 +1,49 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the accompanying paper (below) and this repository."
+title: "Online MPLS + Fading SCI — Cooperative Localization Simulation Code"
+abstract: >-
+  MATLAB simulation code reproducing all results of the paper on dynamic
+  ranging-error compensation (online MPLS front-end) and consistent cooperative
+  localization (fading SCI back-end) for high-dynamic TDMA UWB UAV swarms.
+version: "1.0.0"
+date-released: "2026-06-08"
+license: MIT
+repository-code: "https://github.com/USERNAME/online-mpls-fading-sci"
+authors:
+  - given-names: "Zheng"
+    family-names: "Xie"
+    orcid: "https://orcid.org/0009-0002-5729-1382"
+  - given-names: "Yiding"
+    family-names: "Zhan"
+  - given-names: "Gang"
+    family-names: "Liu"
+  - given-names: "Xiaowei"
+    family-names: "Cui"
+  - given-names: "Mingquan"
+    family-names: "Lu"
+keywords:
+  - ultra-wideband
+  - TDMA ranging
+  - cooperative localization
+  - UAV swarm
+  - split covariance intersection
+  - estimation consistency
+preferred-citation:
+  type: article
+  title: "Dynamic Ranging-Error Compensation and Consistent Cooperative Localization in TDMA UWB UAV Swarms"
+  authors:
+    - given-names: "Zheng"
+      family-names: "Xie"
+    - given-names: "Yiding"
+      family-names: "Zhan"
+    - given-names: "Gang"
+      family-names: "Liu"
+    - given-names: "Xiaowei"
+      family-names: "Cui"
+    - given-names: "Mingquan"
+      family-names: "Lu"
+  journal: "Drones"
+  publisher:
+    name: "MDPI"
+  year: 2026
+  # doi: "10.3390/dronesXXXXXXX"

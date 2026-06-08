@@ -1,0 +1,13 @@
+# Normalize text files to LF in the repository (checked out native per-OS).
+* text=auto
+
+# Source and docs are text.
+*.m    text
+*.md   text
+*.cff  text
+*.txt  text
+
+# Binary data / figures — never apply line-ending conversion.
+*.mat  binary
+*.png  binary
+*.pdf  binary
