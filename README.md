@@ -48,18 +48,23 @@ one SCI update per polling round; LoS propagation (no NLOS).
 
 ## 3. File map
 
-**Core pipeline** (called by the drivers; not run directly)
+The **runnable scripts live at the top level**; the functions they call live in the
+**`lib/`** subfolder. Each top-level script adds `lib/` to the MATLAB path automatically,
+so there is no need to `addpath` by hand — just run the scripts from this directory.
+
+**`lib/` — function library** (called by the drivers; not run directly)
 
 | File | Role |
 |---|---|
-| `set_parameters.m` | Scenario geometry, physics/clock/MAC/odometry defaults. |
-| `get_Xtrue.m` | Ground-truth trajectory generator. |
-| `mac_protocol_new.m` | TDMA MAC + two-way-ranging timestamp generation. |
-| `MPLS.m` | Single-link polynomial least squares (Legendre basis, IRLS-Tukey). |
-| `MMPLS.m` | Two-pass network polynomial LS (clock fusion, then distance). |
-| `MMPLS_analysis_function.m` | Front-end entry: sliding window + Raw/ZOH/SDS-TWR baselines; saves per-link calibrated ranges/variances. |
-| `SCI_Main_Using_MPLS_function_new.m` | Anchored back-end (E2): SCI / EKF / EKF+Inflate / CI. |
-| `SCI_Main_AnchorFree_function.m` | Anchor-free back-end (E3): same methods + dead-reckoning baseline. |
+| `lib/set_parameters.m` | Scenario geometry, physics/clock/MAC/odometry defaults. |
+| `lib/get_Xtrue.m` | Ground-truth trajectory generator. |
+| `lib/mac_protocol_new.m` | TDMA MAC + two-way-ranging timestamp generation. |
+| `lib/MPLS.m` | Single-link polynomial least squares (Legendre basis, IRLS-Tukey). |
+| `lib/MMPLS.m` | Two-pass network polynomial LS (clock fusion, then distance). |
+| `lib/MMPLS_analysis_function.m` | Front-end entry: sliding window + Raw/ZOH/SDS-TWR baselines; saves per-link calibrated ranges/variances. |
+| `lib/SCI_Main_Using_MPLS_function_new.m` | Anchored back-end (E2): SCI / EKF / EKF+Inflate / CI. |
+| `lib/SCI_Main_AnchorFree_function.m` | Anchor-free back-end (E3): same methods + dead-reckoning baseline. |
+| `lib/print_param_table.m` | Parameter-summary printer (called by the batches). |
 
 **Experiment drivers** (entry points — run these)
 
@@ -76,8 +81,9 @@ one SCI update per polling round; LoS propagation (no NLOS).
 
 `Plot_E1_FromMat.m`, `Plot_E2_FromMat.m`, `Plot_E3_FromMat.m`,
 `Plot_E2_PacketLoss_Median.m`, `Stat_Wilcoxon_FromMat.m` (pairwise Wilcoxon
-signed-rank, Holm–Bonferroni, rank-biserial), `Measure_Timing.m` (MPLS / SCI
-wall-clock timing). `print_param_table.m` is a helper called by the batches.
+signed-rank, Holm–Bonferroni, rank-biserial), and `Measure_Timing.m` (MPLS / SCI
+wall-clock timing). These are self-contained — they read a saved `.mat` (or, for
+`Measure_Timing`, nothing) and do not depend on `lib/`.
 
 ---
 
@@ -96,8 +102,12 @@ Plot_E1_FromMat                % E1 distance RMSE + variance calibration
 Plot_E2_FromMat                % E2 RMSE + ANEES (2x2)
 Plot_E3_FromMat                % E3 RMSE + ANEES + DR (2x2)
 Plot_E2_PacketLoss_Median      % packet-loss sensitivity
-Stat_Wilcoxon_FromMat          % significance tests (uses the E2 + E3 .mat)
+Stat_Wilcoxon_FromMat          % significance TABLES (console + LaTeX, no figure); reads E2 + E3
 ```
+
+`Stat_Wilcoxon_FromMat` is the only analysis script that produces *tables* rather than a
+figure: it runs the pairwise Wilcoxon signed-rank tests behind the paper's significance
+claims and prints the corresponding LaTeX table snippets (it needs both the E2 and E3 results).
 
 Each plot/stat script auto-selects the **latest** matching `.mat` in `matfile/` — the
 bundled sample if you have not run a batch yourself.
@@ -106,7 +116,9 @@ bundled sample if you have not run a batch yourself.
 
 Each of the four E1/E2/E3/packet-loss batches is self-contained: it runs the full Monte
 Carlo **and regenerates its figures at the end** by calling the matching `Plot_*` script
-internally, so **no separate plotting step is needed**. `Validate_Tau_Sweep` and
+internally, so **no separate plotting step is needed** for the figures. The one analysis the
+batches do *not* auto-run is the cross-experiment significance table: `Stat_Wilcoxon_FromMat`
+reads both the E2 and E3 results, so run it after those two batches. `Validate_Tau_Sweep` and
 `Run_Ablation_Lambda` are self-contained analysis scripts that produce their own figures.
 
 ```matlab
@@ -116,6 +128,7 @@ Run_Batch_E3_AnchorFree_Test   % E3
 Run_Batch_E2_PacketLoss_Test   % packet loss
 Validate_Tau_Sweep             % fading-memory robustness (paper Sec. 4.5)
 Run_Ablation_Lambda            % tau sensitivity (paper Sec. 4.5)
+Stat_Wilcoxon_FromMat          % significance tables (run after the E2 + E3 batches)
 ```
 
 A full 16-node, `N_sim = 100`, two-phase batch is computationally heavy (use the Parallel

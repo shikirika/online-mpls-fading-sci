@@ -12,6 +12,10 @@
 
 clc; clear; close all;
 
+% Put the function library (lib/) on the path BEFORE the parpool is created,
+% so its functions are visible to the parfor workers (via AutoAddClientPath).
+addpath(fullfile(fileparts(mfilename('fullpath')), 'lib'));
+
 try
     if isempty(gcp('nocreate')), parpool('local', 8); end
 catch
